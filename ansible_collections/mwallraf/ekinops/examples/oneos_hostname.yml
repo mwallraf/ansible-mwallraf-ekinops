@@ -1,0 +1,13 @@
+- name: resource manager hostname
+
+  hosts: all
+
+  gather_facts: False
+  become: True
+  connection: ansible.netcommon.network_cli
+
+  tasks:
+    - name: get hostname
+      mwallraf.ekinops.oneos_hostname:
+        state: gathered
+      register: original_hostname

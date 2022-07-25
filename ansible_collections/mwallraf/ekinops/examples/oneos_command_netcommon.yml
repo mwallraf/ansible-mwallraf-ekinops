@@ -1,0 +1,21 @@
+- name: run command using generic netcommon collection
+
+  hosts: all
+
+  gather_facts: False
+  become: True
+  connection: ansible.netcommon.network_cli
+
+  tasks:
+    - name: execute generic cli command
+      ansible.netcommon.cli_command:
+        command: "show sntp"
+      register: device_cli_command
+
+    - name: execute generic cli command
+      ansible.netcommon.cli_command:
+        command: "{{ item }}"
+      loop:
+        - show version
+        - show system status
+      register: device_cli_command_loop

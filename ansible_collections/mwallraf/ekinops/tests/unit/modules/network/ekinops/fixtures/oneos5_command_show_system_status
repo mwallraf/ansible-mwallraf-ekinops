@@ -1,0 +1,26 @@
+
+System Information for device MB92SsFPEmNW+R S/N T1442006907002084
+
+Software version    : ONEOS92-DUAL_FT-V5.2R2E7_HA8
+Software created on : 04/08/20 17:31:55
+License token       : None
+Boot version        : BOOT92-SEC-V5.2R2E16
+Boot created on     : 23/10/13 16:28:58
+
+Boot Flags          : 0x00000000
+
+Current system time : 22/02/00 18:06:27
+System started      : 01/01/00 00:00:00
+Start caused by     : Power Fail detection
+Sys Up time         : 52d 18h 6m 27s
+System clock ticks  : 227899377
+
+Core 0,     control, CPU load for 1 second: 7.2% (Critical 2.5% Non Critical 4.7%), 1 minute 7.0% 
+Average CPU load (5 / 60 Minutes)         : 7.5% / 7.0%
+Core 1,  forwarding, CPU load for 1 second: 14.0% , 1 minute 14.0%
+Average CPU load (5 / 60 Minutes)         : 14.0% / 14.0%
+
+Free / Max RAM      : 1112,71 / 2004,97 MB
+
+Redundant PSU       : PSU 1 OK / PSU 2 unplugged
+

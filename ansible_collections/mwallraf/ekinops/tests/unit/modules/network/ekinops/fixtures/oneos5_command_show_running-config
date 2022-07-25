@@ -1,0 +1,42 @@
+Building configuration...
+
+Current configuration: 
+
+no reboot recovery-on-error
+logging buffered debug
+logging buffered size 16364
+hostname home-lbb320
+ip ssh enable
+interface GigabitEthernet 0/0
+ ip address dhcp
+exit
+interface GigabitEthernet 0/1
+exit
+interface GigabitEthernet 0/2
+exit
+interface GigabitEthernet 0/3
+exit
+interface GigabitEthernet 1/0
+ ip address 172.18.252.104 255.255.255.240
+exit
+interface dot11radio 0/0.1
+ ssid test4
+  wps enable
+  wps method pbc
+ exit
+ shutdown
+exit
+interface dot11radio 0/0
+ dot11 qos wmm
+exit
+ip route 0.0.0.0 0.0.0.0 172.18.252.97
+ip dhcp pool POOL1
+ dns-server 8.8.8.8 9.9.9.9
+exit
+ip dhcp pool POOL2
+ dns-server 8.8.8.8 9.9.9.9
+exit
+snmp contact test
+no snmp set-write-community private
+no snmp set-read-community public
+end

@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "ansible_collections"
+version = "1.0.0"
+description = "Ansible collection mwallraf.ekinops to manage Ekinops OneOs devices"
+authors = ["Maarten Wallraf <mwallraf@2nms.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+ansible = "^6.1.0"
+ansible-core = "^2.13.1"
+ansible-pylibssh = "^0.4.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+pytest-xdist = "^2.5.0"
+coverage = "^6.4.2"
+yamllint = "^1.27.1"
+flake8 = "^4.0.1"
+mock = "^4.0.3"
+pytest-mock = "^3.8.2"
+black = "^22.6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

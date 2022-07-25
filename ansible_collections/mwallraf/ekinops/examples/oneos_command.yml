@@ -1,0 +1,30 @@
+- name: run command using generic netcommon collection
+
+  hosts: all
+
+  gather_facts: False
+  become: True
+  connection: ansible.netcommon.network_cli
+
+  tasks:
+    - name: execute cli command
+      mwallraf.ekinops.oneos_command:
+        commands: "show sntp"
+      register: device_cli_command
+
+    - name: execute cli command
+      mwallraf.ekinops.oneos_command:
+        commands:
+          - show version
+          - show system status
+      register: device_cli_command_loop
+
+    - name: execute cli command
+      mwallraf.ekinops.oneos_command:
+        commands:
+          - show system status
+        wait_for:
+          - result[0] contains OneOS
+          - result[0] contains ONEOS
+        match: any
+      register: device_cli_command_loop

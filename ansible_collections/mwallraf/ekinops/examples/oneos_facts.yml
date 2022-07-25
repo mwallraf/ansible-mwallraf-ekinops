@@ -1,0 +1,30 @@
+- name: RUN COMMAND AND PRINT TO TERMINAL WINDOW
+
+  hosts: all
+  gather_facts: false
+  become: True
+
+  tasks:
+    - name: Gather all config facts
+      mwallraf.ekinops.oneos_facts:
+        gather_subset: all
+
+    - name: Gather default config facts
+      mwallraf.ekinops.oneos_facts:
+        gather_subset: default,hostname
+
+    - name: Gather hardware and interface config facts
+      mwallraf.ekinops.oneos_facts:
+        gather_subset: hardware,interfaces
+
+    - name: Gather all interfaces facts
+      mwallraf.ekinops.oneos_facts:
+        gather_subset: interfaces
+
+    - name: Don't gather hardware facts
+      mwallraf.ekinops.oneos_facts:
+        gather_subset: "!hardware"
+
+    - name: Gather all network resources
+      mwallraf.ekinops.oneos_facts:
+        gather_network_resources: all

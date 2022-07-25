@@ -1,0 +1,104 @@
+ip vrf WAN
+ip vrf OBELAN
+bind ssh gigabitethernet 0/0
+bind ssh gigabitethernet 1/0
+bind ssh vrf WAN
+bind ssh vrf default-router
+bind telnet gigabitethernet 0/0
+bind telnet gigabitethernet 1/0
+bind telnet vrf WAN
+bind telnet vrf default-router
+logging buffered informational
+logging buffered size 34728
+hostname lab-lbb150
+ip ssh enable
+ip access-list standard NAT_ACL
+ permit 192.168.100.0 0.0.0.255
+exit
+ip access-list standard CONNECTED-BGP-ACL
+ permit 172.18.252.134
+exit
+ip access-list extended BYPASS-LIST
+ deny ip 0.0.0.0 255.255.255.255 172.18.252.134 0.0.0.0
+ deny ip 172.18.252.134 0.0.0.0 0.0.0.0 255.255.255.255
+ deny ip 0.0.0.0 255.255.255.255 192.168.100.0 0.0.0.255
+ deny ip 192.168.100.0 0.0.0.255 0.0.0.0 255.255.255.255
+ permit ip 0.0.0.0 255.255.255.255 0.0.0.0 255.255.255.255
+exit
+crypto keyring DMVPN_HUB-keyring 
+exit
+bridge-group 160
+exit
+interface gigabitethernet 0/0
+ ip vrf forwarding OBELAN
+ ip address 192.168.1.174 255.255.255.0
+ ip nat inside overload
+exit
+interface gigabitethernet 0/1
+exit
+interface gigabitethernet 0/2
+exit
+interface gigabitethernet 0/3
+exit
+interface gigabitethernet 1/0
+ ip vrf forwarding WAN
+ ip address 192.168.1.168 255.255.255.0
+exit
+interface loopback 1000
+ ip vrf forwarding OBELAN
+ ip address 172.18.252.134 255.255.255.255
+exit
+interface bvi 160
+ bridge-group 160
+ ip vrf forwarding OBELAN
+ ip address 192.168.100.1 255.255.255.0
+exit
+interface tunnel 9
+ tunnel mode gre
+ tunnel source gigabitethernet 1/0
+ tunnel destination 94.104.252.190
+ tunnel vrf WAN
+ tunnel key 25048
+ ip tcp adjust-mss 1360
+ ip vrf forwarding OBELAN
+ ip mtu 1400
+ ip address 10.10.10.1 255.255.255.0
+ ip nat inside bypass-list BYPASS-LIST
+ ip nat inside pool NAT 172.18.252.134 172.18.252.134 user-list NAT_ACL overload
+exit
+interface dot11radio 0/0
+exit
+interface dot11radio 0/0.1
+ bridge-group     160
+ ssid OBELAN
+  authentication wpa2-psk
+  passphrase Mobistar
+  exit
+ max-associations 3
+exit
+ip route vrf OBELAN 0.0.0.0 0.0.0.0 gigabitethernet 0/0 192.168.1.1
+ip route vrf WAN 0.0.0.0 0.0.0.0 gigabitethernet 1/0 192.168.1.1
+route-map CONNECTED-BGP permit 10
+ match ip address CONNECTED-BGP-ACL
+exit
+router bgp 65000 vrf OBELAN
+ redistribute connected route-map CONNECTED-BGP
+ neighbor 10.10.10.254
+  remote-as 65410
+  ebgp-multihop
+ exit
+ address-family ipv4
+  neighbor 10.10.10.254 activate
+   soft-reconfiguration inbound
+  exit
+ exit
+exit
+ip dhcp pool HOMEOFFICE
+ default-router 192.168.100.1
+ dns-server 172.18.49.10 172.18.49.33
+ network 192.168.100.0 255.255.255.0
+ vrf        OBELAN
+exit
+snmp contact test
+ip scp server enable
+lab-lbb150#
