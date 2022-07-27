@@ -33,7 +33,7 @@ class HostnameFacts(object):
         self.argument_spec = HostnameArgs.argument_spec
 
     def get_hostname_data(self, connection):
-        return connection.get("show runn | i hostname")
+        return connection.get("alias-get-hostname")
 
     def populate_facts(self, connection, ansible_facts, data=None):
         """Populate the facts for Hostname network resource

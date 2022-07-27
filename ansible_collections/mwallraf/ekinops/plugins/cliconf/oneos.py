@@ -12,6 +12,11 @@ from ansible.plugins.cliconf import CliconfBase, enable_mode
 from ansible.module_utils._text import to_text, to_bytes
 from ansible.module_utils.common._collections_compat import Mapping
 from ansible.errors import AnsibleConnectionFailure
+
+from ansible_collections.mwallraf.ekinops.plugins.module_utils.network.oneos.utils.commands import (  # noqa: E501
+    OneosCommand,
+)
+
 import json
 import re
 
@@ -87,6 +92,7 @@ class Cliconf(CliconfBase):
 
         self._device_info = {}
         self._oneos_version = None  # could be either 5 or 6
+        self.oneos_command_map = None  # translate to oneos v5 or v6 command
 
     @property
     def oneos_version(self):
@@ -137,13 +143,34 @@ class Cliconf(CliconfBase):
         )
 
     def send_command(self, *args, **kwargs):
-        # display.vvvv("oneos version {}".format(self.oneos_version))
-        # oneos_version = self.oneos_version
+        """Override the original Cliconf function to check if we need to
+        translate commands to OS specific commands
+        """
+        print(f"{args}")
+        print(f"{kwargs}")
+        if not self.oneos_command_map:
+            self.get_oneos_version()
+
+        # translate the command
+        if kwargs.get("command"):
+            new_command = self.oneos_command_map.get(kwargs.get("command"))
+            if new_command:
+                kwargs["command"] = new_command
+        else:
+            if len(args) > 0:
+                new_command = self.oneos_command_map.get(args[0])
+                if new_command:
+                    args[0] = new_command
+        # TODO: *args could be a list of commands
+
         res = super(Cliconf, self).send_command(*args, **kwargs)
         return res
 
     def get_oneos_version(self):
-        return self.oneos_version
+        version = self.oneos_version
+        if not self.oneos_command_map:
+            self.oneos_command_map = OneosCommand(version)
+        return version
 
     def get_diff(
         self,
@@ -244,6 +271,7 @@ class Cliconf(CliconfBase):
 
         cmd_product_info_area = "show product-info-area"
         cmd_hostname = "hostname"
+        cmd_hardware = "show system hardware"
 
         data = self.get_command_output(cmd_hostname)
         device_info["network_os_hostname"] = data
@@ -261,6 +289,38 @@ class Cliconf(CliconfBase):
         match = re.search(r"\W*[sS]erial [Nn]umber\W+(\S+)\W+$", data, re.M)
         if match:
             device_info["network_os_serial_number"] = match.group(1)
+
+        data = self.get_command_output(cmd_hardware)
+
+        supports_wifi = False
+        match = re.search(r"^\s*Wlan\s+:", data, re.M)
+        if match:
+            supports_wifi = True
+        device_info["network_os_supports_wifi"] = supports_wifi
+
+        supports_cellular = False
+        match = re.search(r"^\s*Radio\s+:", data, re.M)
+        if match:
+            supports_cellular = True
+        device_info["network_os_supports_cellular"] = supports_cellular
+
+        supports_voip_codecs = False
+        match = re.search(r"^\s*(?:PRI|BRI)\s+:", data, re.M)
+        if match:
+            supports_voip_codecs = True
+        device_info["network_os_supports_voip_codecs"] = supports_voip_codecs
+
+        match = re.search(r"^\s*Local\s+:\s*(.*ETHERNET.*)", data, re.M)
+        if match:
+            device_info["network_os_local_interfaces"] = (
+                match.group(1).strip().split(" + ")
+            )
+
+        match = re.search(r"^\s*Uplink\s+:\s*(.*)", data, re.M)
+        if match:
+            device_info["network_os_uplink_interfaces"] = match.group(
+                1
+            ).strip()
 
         return device_info
 
@@ -297,8 +357,6 @@ class Cliconf(CliconfBase):
             "running": "running-config",
             "startup": "startup-config",
         }
-
-        # TODO: output format for ONEOS 6 can be xml, json, xpath, ..
 
         # oneos5 = show run all
         # oneos6 = show run | detail
@@ -469,6 +527,7 @@ class Cliconf(CliconfBase):
         return [
             # "get_diff",
             "run_commands",
+            "get_oneos_version",
         ]
 
     def get_option_values(self):

@@ -12,12 +12,24 @@ calls the appropriate facts gathering function
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.facts.facts import (  # noqa:E501
     FactsBase,
 )
+from ansible_collections.mwallraf.ekinops.plugins.module_utils.network.oneos.facts.legacy.base import (  # noqa:E501
+    Default,
+    Hardware,
+    Config,
+    Interfaces,
+)
 from ansible_collections.mwallraf.ekinops.plugins.module_utils.network.oneos.facts.hostname.hostname import (  # noqa:E501
     HostnameFacts,
 )
 
 
-FACT_LEGACY_SUBSETS = {}
+FACT_LEGACY_SUBSETS = dict(
+    default=Default,
+    hardware=Hardware,
+    config=Config,
+    interfaces=Interfaces,
+)
+
 FACT_RESOURCE_SUBSETS = dict(
     hostname=HostnameFacts,
 )

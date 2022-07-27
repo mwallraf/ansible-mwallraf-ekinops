@@ -6,8 +6,34 @@
   become: True
   connection: ansible.netcommon.network_cli
 
+  vars:
+    test_change: False
+
   tasks:
     - name: get hostname
       mwallraf.ekinops.oneos_hostname:
         state: gathered
       register: original_hostname
+
+    - block:
+        - name: set dummy hostname
+          mwallraf.ekinops.oneos_hostname:
+            state: merged
+            config:
+              hostname: "test-{{ original_hostname.gathered.hostname }}"
+
+        - name: get new hostname
+          mwallraf.ekinops.oneos_hostname:
+            state: gathered
+
+        - name: set original hostname
+          mwallraf.ekinops.oneos_hostname:
+            state: merged
+            config:
+              hostname: "{{ original_hostname.gathered.hostname }}"
+
+        - name: get original hostname
+          mwallraf.ekinops.oneos_hostname:
+            state: gathered
+
+      when: test_change
