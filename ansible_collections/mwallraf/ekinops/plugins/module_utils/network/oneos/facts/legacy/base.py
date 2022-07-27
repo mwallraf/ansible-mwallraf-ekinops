@@ -538,8 +538,9 @@ class Interfaces(FactsBase):
     def populate_interfaces(self, interfaces):
         facts = dict()
         for key, value in iteritems(interfaces):
-            if key in self.IGNORE_INTERFACES:
-                continue
+            for intf in self.IGNORE_INTERFACES:
+                if key.startswith(intf):
+                    continue
 
             intf = dict()
             intf["description"] = self.parse_description(value)

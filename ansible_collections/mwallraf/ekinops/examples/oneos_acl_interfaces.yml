@@ -1,0 +1,73 @@
+- name: resource manager acl-interfaces
+
+  hosts: all
+
+  gather_facts: False
+  become: True
+  connection: ansible.netcommon.network_cli
+
+  vars:
+    test_change: False
+
+  tasks:
+    - name: get interface acl
+      mwallraf.ekinops.oneos_acl_interfaces:
+        config:
+        state: gathered
+      register: gathered_acl
+
+    - name: parse interface acl
+      mwallraf.ekinops.oneos_acl_interfaces:
+        running_config: |
+          interface GigabitEthernet 0/3
+          ip access-group TEST1 in
+          ip access-group TEST1 out
+          exit
+        state: parsed
+      register: parsed_acl
+
+    - name: render interface acl
+      mwallraf.ekinops.oneos_acl_interfaces:
+        config:
+          - name: Gig 5/0
+            access_groups:
+              - afi: ipv4
+                acls:
+                  - name: 110
+                    direction: in
+                  - name: TESTTEST
+                    direction: out
+        state: rendered
+      register: rendered_acl
+
+    - name: remove interface acl
+      mwallraf.ekinops.oneos_acl_interfaces:
+        config:
+          - name: GigabitEthernet 0/3
+          - name: blablaBla
+        state: deleted
+      register: deleted_acl
+
+    - name: replace interface acl
+      mwallraf.ekinops.oneos_acl_interfaces:
+        config:
+          - name: GigabitEthernet 0/3
+            access_groups:
+              - afi: ipv4
+                acls:
+                  - name: TEST1
+                    direction: out
+        state: replaced
+      register: replaced_acl
+
+    - name: merge interface acl
+      mwallraf.ekinops.oneos_acl_interfaces:
+        config:
+          - name: GigabitEthernet 0/3
+            access_groups:
+              - afi: ipv4
+                acls:
+                  - name: TEST1
+                    direction: in
+        state: merged
+      register: merged_acl

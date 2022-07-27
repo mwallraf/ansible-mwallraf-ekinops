@@ -22,6 +22,10 @@ from ansible_collections.mwallraf.ekinops.plugins.module_utils.network.oneos.fac
     HostnameFacts,
 )
 
+from ansible_collections.mwallraf.ekinops.plugins.module_utils.network.oneos.facts.acl_interfaces.acl_interfaces import (  # noqa:E501
+    Acl_interfacesFacts,
+)
+
 
 FACT_LEGACY_SUBSETS = dict(
     default=Default,
@@ -32,6 +36,7 @@ FACT_LEGACY_SUBSETS = dict(
 
 FACT_RESOURCE_SUBSETS = dict(
     hostname=HostnameFacts,
+    acl_interfaces=Acl_interfacesFacts,
 )
 
 

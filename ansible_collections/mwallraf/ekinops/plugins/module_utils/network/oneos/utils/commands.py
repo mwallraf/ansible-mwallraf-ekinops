@@ -3,6 +3,8 @@ class OneosCommandV5:
     # map an alias to a command
     COMMANDMAP = {
         "alias-get-hostname": "show running-config | i hostname",
+        "alias-get-interface-acl": "show running-config"
+        " | include (interface|access)",
     }
 
     # commands used to parse Hardware facts
@@ -23,6 +25,8 @@ class OneosCommandV6:
     # map an alias to a command
     COMMANDMAP = {
         "alias-get-hostname": "show running-config hostname",
+        "alias-get-interface-acl": "show running-config interface"
+        ' | i "(interface|access-group)"',
     }
 
     # commands used to parse Hardware facts
