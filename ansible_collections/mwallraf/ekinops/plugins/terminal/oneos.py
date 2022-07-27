@@ -40,7 +40,8 @@ class TerminalModule(TerminalBase):
     terminal_stderr_re = [
         re.compile(rb"Error: Invalid command"),
         re.compile(rb" +^$"),
-        re.compile(rb"Syntax error:.*"),
+        re.compile(rb"Syntax error:"),
+        re.compile(rb"-+^$"),
     ]
 
     def on_open_shell(self):
