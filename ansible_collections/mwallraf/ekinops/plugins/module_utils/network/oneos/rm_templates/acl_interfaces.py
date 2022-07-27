@@ -49,7 +49,7 @@ class Acl_interfacesTemplate(NetworkTemplate):
             "name": "access_groups",
             "getval": re.compile(
                 r"""
-                \s+(?P<afi>ip|ipv6)
+                \s*(?P<afi>ip|ipv6)
                 \saccess-group\s(?P<acl_name>\S+)
                 \s(?P<direction>\S+)$
                 """,

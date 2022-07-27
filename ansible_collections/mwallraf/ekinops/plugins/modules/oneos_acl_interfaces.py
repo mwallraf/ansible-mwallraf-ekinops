@@ -62,6 +62,10 @@ options:
                 choices:
                   - in
                   - out
+  running_config:
+    description:
+      - Running config for parsing commands
+    type: str
   state:
     description:
       - The state the configuration should be left in

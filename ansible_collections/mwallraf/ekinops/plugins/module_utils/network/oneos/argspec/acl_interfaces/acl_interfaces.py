@@ -57,6 +57,7 @@ class Acl_interfacesArgs(object):  # pylint: disable=R0903
                 },
             },
         },
+        "running_config": {"type": "str"},
         "state": {
             "type": "str",
             "choices": [

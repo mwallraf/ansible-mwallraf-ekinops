@@ -71,3 +71,12 @@
                     direction: in
         state: merged
       register: merged_acl
+
+    - name: cleanup
+      mwallraf.ekinops.oneos_acl_interfaces:
+        config:
+          - name: GigabitEthernet 0/3
+        state: deleted
+
+    # note: don't use overridden state unless you specify config
+    #       for all existing interfaces
