@@ -5,6 +5,8 @@ class OneosCommandV5:
         "alias-get-hostname": "show running-config | i hostname",
         "alias-get-interface-acl": "show running-config"
         " | include (interface|access)",
+        "alias-get-acl-remarks": "sh running-config "
+        "| i (ip access-list| remark)",
     }
 
     # commands used to parse Hardware facts
@@ -27,6 +29,8 @@ class OneosCommandV6:
         "alias-get-hostname": "show running-config hostname",
         "alias-get-interface-acl": "show running-config interface"
         ' | i "(interface|access-group)"',
+        "alias-get-acl-remarks": "show running-config ip access-list "
+        '| i "(ip access-list| remark)"',
     }
 
     # commands used to parse Hardware facts
