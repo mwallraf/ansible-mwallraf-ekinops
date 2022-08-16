@@ -1,0 +1,41 @@
+- name: run oneos config commands
+
+  hosts: all
+
+  gather_facts: False
+  become: True
+  connection: ansible.netcommon.network_cli
+
+  tasks:
+    # remove config
+    - name: "Generate the remove config"
+      ansible.builtin.set_fact:
+        remove_config: "{{ lookup('template', 'templates/remove_config.j2') }}"
+
+    - block:
+        - name: "configure device with removal config"
+          ansible.netcommon.cli_config:
+            config: "{{ remove_config }}"
+            commit: true
+
+    # add config
+    - name: "Generate the add config"
+      ansible.builtin.set_fact:
+        want_config: "{{ lookup('template', 'templates/add_config.j2') }}"
+
+    - block:
+        - name: "configure device with config"
+          ansible.netcommon.cli_config:
+            config: "{{ want_config }}"
+            commit: true
+
+    # remove again
+    - name: "Generate the remove config"
+      ansible.builtin.set_fact:
+        remove_config: "{{ lookup('template', 'templates/remove_config.j2') }}"
+
+    - block:
+        - name: "configure device with removal config"
+          ansible.netcommon.cli_config:
+            config: "{{ remove_config }}"
+            commit: true

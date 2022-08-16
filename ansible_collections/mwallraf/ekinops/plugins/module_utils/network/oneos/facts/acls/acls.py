@@ -49,7 +49,8 @@ class AclsFacts(object):
             remarks_config = []
             # add a tag so we can distinct between "show int" and "show run" output
             for rem in _remarks_data.split("\n"):
-                rem = re.sub(r"^(ip)", "ip-remark", rem)
+                rem = re.sub(r"^(ip )", "ip-remark ", rem)
+                rem = re.sub(r"^(ipv6 )", "ipv6-remark ", rem)
                 remarks_config.append(rem)
             _acl_data += "\n" + "\n".join(remarks_config)
         return _acl_data
@@ -110,8 +111,9 @@ class AclsFacts(object):
             temp_v4 = sorted(temp_v4, key=lambda i: str(i["name"]))
             temp_v6 = sorted(temp_v6, key=lambda i: str(i["name"]))
 
-            def process_protocol_options(each):
+            def process_protocol_options(each, acl_type):
                 for each_ace in each.get("aces"):
+
                     if each_ace.get("source"):
                         if len(each_ace.get("source")) == 1 and each_ace.get(
                             "source",
@@ -124,22 +126,24 @@ class AclsFacts(object):
                             addr = each_ace.get("source", {}).get("address")
                             if addr[-1] == ",":
                                 each_ace["source"]["address"] = addr[:-1]
-                    if each_ace.get("icmp_igmp_tcp_protocol"):
-                        each_ace["protocol_options"] = {
-                            each_ace["protocol"]: {
-                                each_ace.pop("icmp_igmp_tcp_protocol").replace(
-                                    "-",
-                                    "_",
-                                ): True,
-                            },
-                        }
+
+                    if acl_type == "extended" and not each_ace.get(
+                        "protocol", None
+                    ):
+                        each_ace["protocol"] = "ip"
+
+                    if each_ace.get("protocol"):
+                        each_ace.setdefault("protocol_options", {})
+                        each_ace["protocol_options"][
+                            "protocol"
+                        ] = each_ace.pop("protocol")
+
                     for protocol_option in [
                         "protocol_number",
-                        "icmp_code",
-                        "icmp_type",
+                        "icmp_message_code",
+                        "icmp_message_type",
                     ]:
                         if each_ace.get(protocol_option):
-                            each_ace.setdefault("protocol_options", {})
                             each_ace["protocol_options"][
                                 protocol_option
                             ] = each_ace.pop(protocol_option)
@@ -160,12 +164,16 @@ class AclsFacts(object):
             for each in temp_v4:
                 if each.get("aces"):
                     each["aces"] = collect_remarks(each.get("aces"))
-                    process_protocol_options(each)
+                    process_protocol_options(
+                        each, each.get("acl_type", "standard")
+                    )
 
             for each in temp_v6:
                 if each.get("aces"):
                     each["aces"] = collect_remarks(each.get("aces"))
-                    process_protocol_options(each)
+                    process_protocol_options(
+                        each, each.get("acl_type", "standard")
+                    )
 
         objs = []
         if temp_v4:
@@ -176,7 +184,6 @@ class AclsFacts(object):
         facts = {}
         if objs:
             facts["acls"] = []
-            raise Exception(objs)
             params = utils.validate_config(
                 self.argument_spec,
                 {"config": objs},

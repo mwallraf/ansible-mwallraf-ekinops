@@ -56,11 +56,11 @@ options:
               - extended
               - standard
               - remark
-          ace:
+          aces:
             description: The entries within the ACL.
             mutually_exclusive: [[name], [number]]
             elements: dict
-            required_together: [[action, protocol, source, destination]]
+            # required_together: [[action, protocol, source, destination]]
             type: list
             suboptions:
               grant:
@@ -71,46 +71,20 @@ options:
                 description: protocol type.
                 type: dict
                 suboptions:
+                  protocol:
+                    description: Name of the protocol
+                    type: str
                   protocol_number:
                     description: An IP protocol number
                     type: int
-                  gre:
-                    description: Cisco's GRE tunneling.
-                    type: bool
-                  icmp:
-                    description: Internet Control Message Protocol.
-                    type: dict
-                    suboptions:
-                      set:
-                        description:
-                          - When ICMP options are not specified and user want to set
-                            ICMP only as protocol option
-                          - Note, not required if ICMP options are set
-                        type: bool
-                      icmp_message_type:
-                        description:
-                          - icmp message type (0-255)
-                        type: int
-                      icmp_message_code:
-                        description:
-                          - icmp message code (0-255)
-                        type: int
-                  ip:
-                    description: Any Internet Protocol.
-                    type: bool
-                  udp:
-                    description: User Datagram Protocol.
-                    type: bool
-                  tcp:
-                    description: Match TCP packet flags
-                    type: dict
-                    suboptions:
-                      set:
-                        description:
-                          - When TCP flags are not specified and user want to set
-                            TCP only as protocol option.
-                          - Note, not required if flags options are set.
-                        type: bool
+                  icmp_message_type:
+                    description:
+                      - icmp message type (0-255)
+                    type: int
+                  icmp_message_code:
+                    description:
+                      - icmp message code (0-255)
+                    type: int
               remarks:
                 description:
                   - ACL remark entries
@@ -126,6 +100,9 @@ options:
                 mutually_exclusive: [[address, any], [wildcard_bits, any]]
                 required_together: [address, wildcard_bits]
                 suboptions:
+                  host:
+                    description: Source host address.
+                    type: str
                   address:
                     description: Source network address.
                     type: str
@@ -161,6 +138,9 @@ options:
                 required_together: [address, wildcard_bits]
                 type: dict
                 suboptions:
+                  host:
+                    description: Source host address.
+                    type: str
                   address:
                     description: Host address to match, or any single host address.
                     type: str
@@ -195,7 +175,10 @@ options:
                 type: int
               fragments:
                 description: Check non-initial fragments.
-                type: str
+                type: bool
+              reflexive:
+                description: Check if the ACL should work in both directions.
+                type: bool
               log:
                 description: Log matches against this entry.
                 type: bool

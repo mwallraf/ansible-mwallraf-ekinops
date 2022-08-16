@@ -10,73 +10,112 @@
     test_change: False
 
   tasks:
+    - name: delete interface acl
+      mwallraf.ekinops.oneos_acls:
+        config:
+          - afi: ipv4
+            acls:
+              - name: "TEST-MAARTEN-123"
+        state: deleted
+      register: deleted_acl
+
     - name: get acls from running-config
       mwallraf.ekinops.oneos_acls:
         config:
         state: gathered
       register: gathered_acls
 
-    # - name: parse interface acl
-    #   mwallraf.ekinops.oneos_acl_interfaces:
-    #     running_config: |
-    #       interface GigabitEthernet 0/3
-    #       ip access-group TEST1 in
-    #       ip access-group TEST1 out
-    #       exit
-    #     state: parsed
-    #   register: parsed_acl
+    - name: parse interface acl
+      mwallraf.ekinops.oneos_acls:
+        running_config: |
+          IP access list extended TEST-EXT
+            permit 0.0.0.2 255.255.255.0 host 3.3.3.3 (0 matches)
+            permit 1.2.3.0 0.0.0.255 host 5.5.5.5 dscp 4 log reflexive fragments (0 matches)
+            permit protocol number 255 1.1.1.0 0.0.0.255 host 2.2.2.2 (0 matches)
+            permit tcp host 5.5.5.5 eq 1200 host 6.6.6.6 (0 matches)
+            permit tcp host 5.5.5.5 eq 1300 host 6.6.6.6 eq 1300 (0 matches)
+            permit gre host 1.2.3.4 host 2.2.2.2 (0 matches)
+            permit icmp icmp-type 100 icmp-code 200 host 1.1.1.1 host 2.2.2.2 (0 matches)
+            permit udp host 1.1.1.1 range 80 90 host 2.2.2.2 range 80 90 (0 matches)
+        state: parsed
+      register: parsed_acls
 
-    # - name: render interface acl
-    #   mwallraf.ekinops.oneos_acl_interfaces:
-    #     config:
-    #       - name: Gig 5/0
-    #         access_groups:
-    #           - afi: ipv4
-    #             acls:
-    #               - name: 110
-    #                 direction: in
-    #               - name: TESTTEST
-    #                 direction: out
-    #     state: rendered
-    #   register: rendered_acl
+    - name: render interface acl
+      mwallraf.ekinops.oneos_acls:
+        config:
+          - afi: ipv4
+            acls:
+              - name: "TEST-MAARTEN-1"
+                acl_type: extended
+                aces:
+                  - source:
+                      host: 1.2.3.4
+                    destination:
+                      host: 8.8.8.8
+                    grant: permit
+                  - source:
+                      any: True
+                    destination:
+                      any: True
+                    grant: deny
+        state: rendered
+      register: rendered_acls
 
-    # - name: remove interface acl
-    #   mwallraf.ekinops.oneos_acl_interfaces:
-    #     config:
-    #       - name: GigabitEthernet 0/3
-    #       - name: blablaBla
-    #     state: deleted
-    #   register: deleted_acl
+    - name: merge interface acl
+      mwallraf.ekinops.oneos_acls:
+        config:
+          - afi: ipv4
+            acls:
+              - name: "TEST-MAARTEN-123"
+                acl_type: extended
+                aces:
+                  - source:
+                      host: 1.2.3.4
+                    destination:
+                      host: 8.8.8.8
+                    grant: permit
+                  - source:
+                      any: True
+                    destination:
+                      any: True
+                    grant: deny
+        state: merged
+      register: merged_acl
 
-    # - name: replace interface acl
-    #   mwallraf.ekinops.oneos_acl_interfaces:
-    #     config:
-    #       - name: GigabitEthernet 0/3
-    #         access_groups:
-    #           - afi: ipv4
-    #             acls:
-    #               - name: TEST1
-    #                 direction: out
-    #     state: replaced
-    #   register: replaced_acl
+    - name: merge interface acl
+      mwallraf.ekinops.oneos_acls:
+        config:
+          - afi: ipv4
+            acls:
+              - name: "TEST-MAARTEN-123"
+                acl_type: extended
+                aces:
+                  - source:
+                      host: 1.2.3.4
+                    destination:
+                      host: 8.8.8.8
+                    grant: permit
+                  - source:
+                      host: 8.8.8.8
+                    destination:
+                      host: 1.2.3.4
+                    grant: permit
+                  - source:
+                      any: True
+                    destination:
+                      any: True
+                    grant: deny
+        state: replaced
+      register: replaced_acl
 
-    # - name: merge interface acl
-    #   mwallraf.ekinops.oneos_acl_interfaces:
-    #     config:
-    #       - name: GigabitEthernet 0/3
-    #         access_groups:
-    #           - afi: ipv4
-    #             acls:
-    #               - name: TEST1
-    #                 direction: in
-    #     state: merged
-    #   register: merged_acl
-
-    # - name: cleanup
-    #   mwallraf.ekinops.oneos_acl_interfaces:
-    #     config:
-    #       - name: GigabitEthernet 0/3
-    #     state: deleted
+    - name: delete interface acl
+      mwallraf.ekinops.oneos_acls:
+        config:
+          - afi: ipv4
+            acls:
+              - name: "TEST-MAARTEN-123"
+        state: deleted
+      register: deleted_acl
 
     # note: don't use overridden state unless you specify config
-    #       for all existing interfaces
+    #       for all existing ACLs

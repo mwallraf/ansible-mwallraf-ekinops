@@ -50,38 +50,19 @@ class AclsArgs(object):  # pylint: disable=R0903
                             "type": "str",
                             "choices": ["extended", "standard", "remark"],
                         },
-                        "ace": {
+                        "aces": {
                             "mutually_exclusive": [["name"], ["number"]],
                             "elements": "dict",
-                            "required_together": [
-                                ["action", "protocol", "source", "destination"]
-                            ],
                             "type": "list",
                             "options": {
                                 "grant": {"type": "str"},
                                 "protocol_options": {
                                     "type": "dict",
                                     "options": {
+                                        "protocol": {"type": "str"},
                                         "protocol_number": {"type": "int"},
-                                        "gre": {"type": "bool"},
-                                        "icmp": {
-                                            "type": "dict",
-                                            "options": {
-                                                "set": {"type": "bool"},
-                                                "icmp_message_type": {
-                                                    "type": "int"
-                                                },
-                                                "icmp_message_code": {
-                                                    "type": "int"
-                                                },
-                                            },
-                                        },
-                                        "ip": {"type": "bool"},
-                                        "udp": {"type": "bool"},
-                                        "tcp": {
-                                            "type": "dict",
-                                            "options": {"set": {"type": "bool"}},
-                                        },
+                                        "icmp_message_type": {"type": "int"},
+                                        "icmp_message_code": {"type": "int"},
                                     },
                                 },
                                 "remarks": {"type": "list", "elements": "str"},
@@ -97,6 +78,7 @@ class AclsArgs(object):  # pylint: disable=R0903
                                         "wildcard_bits",
                                     ],
                                     "options": {
+                                        "host": {"type": "str"},
                                         "address": {"type": "str"},
                                         "wildcard_bits": {"type": "str"},
                                         "any": {"type": "bool"},
@@ -126,6 +108,7 @@ class AclsArgs(object):  # pylint: disable=R0903
                                     ],
                                     "type": "dict",
                                     "options": {
+                                        "host": {"type": "str"},
                                         "address": {"type": "str"},
                                         "wildcard_bits": {"type": "str"},
                                         "any": {"type": "bool"},
@@ -145,7 +128,8 @@ class AclsArgs(object):  # pylint: disable=R0903
                                     },
                                 },
                                 "dscp": {"type": "int"},
-                                "fragments": {"type": "str"},
+                                "fragments": {"type": "bool"},
+                                "reflexive": {"type": "bool"},
                                 "log": {"type": "bool"},
                                 "option": {
                                     "type": "dict",
